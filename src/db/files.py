@@ -104,3 +104,12 @@ def remove(name: str) -> bool:
     except Exception as e:
         print(f"ERROR \tCould not remove file to database. Error message: '{e}'")
         return False
+
+
+def read(name: str) -> None:
+    try:
+        file = open(os.path.join(File.default_db_files_directory, name))
+        content = file.read()
+        print(f"INFO \tFile content: \n\r{content}")
+    except Exception as e:
+        print(f"ERROR \tCould not read file from database. Error message: '{e}'")

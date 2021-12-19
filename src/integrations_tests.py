@@ -9,6 +9,7 @@ def test_db_files():
 
     for file in files:
         print(f"DEBUG \t{file}")
+        db.files.read(file.name)
 
     db.files.remove("test1.txt")
     files = db.files.get_all()
