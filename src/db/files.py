@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import shutil
 from os import path
@@ -64,7 +65,7 @@ def get_all():
         print(f"ERROR \tCould not list files from database. Error message: '{e}'")
 
 
-def add(file_metadata, filepath):
+def add(file_metadata: File, filepath: str) -> bool:
     try:
         print(f"DEBUG \tCopy file {filepath} in db files directory: {File.default_db_files_directory}")
         shutil.copy(filepath, File.default_db_files_directory)
@@ -73,15 +74,33 @@ def add(file_metadata, filepath):
         cur = con.cursor()
 
         print(f"DEBUG \tAdd file in database: {file_metadata}")
-        add_file_cmd = f"INSERT INTO files(name, crypt_alg, encrypt_key, decrypt_key) VALUES (" \
+        sql_cmd = f"INSERT INTO files(name, crypt_alg, encrypt_key, decrypt_key) VALUES (" \
                        f"'{file_metadata.name}'," \
                        f"'{file_metadata.crypt_alg}'," \
                        f"'{file_metadata.encrypt_key}'," \
                        f"'{file_metadata.decrypt_key}') "
-        print(add_file_cmd)
-        cur.execute(add_file_cmd)
+        print(f"DEBUG \tExecuting sql command: '{sql_cmd}'")
+
+        cur.execute(sql_cmd)
         con.commit()
 
         con.close()
+        return True
     except Exception as e:
         print(f"ERROR \tCould not add file to database. Error message: '{e}'")
+        return False
+
+
+def remove(name: str) -> bool:
+    try:
+        os.remove(os.path.join(File.default_db_files_directory, name))
+        con = sqlite3.connect('files.db')
+        sql_cmd = f"DELETE FROM files WHERE name='{name}'"
+        print(f"DEBUG \tExecuting sql command: '{sql_cmd}'")
+        cur = con.cursor()
+        cur.execute(sql_cmd)
+        con.commit()
+        return True
+    except Exception as e:
+        print(f"ERROR \tCould not remove file to database. Error message: '{e}'")
+        return False
