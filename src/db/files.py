@@ -2,7 +2,7 @@ import os
 import sqlite3
 import shutil
 from os import path
-
+from logging.logger import defaultLogger as log
 
 class File(object):
 
@@ -29,7 +29,8 @@ class File(object):
 
 def init_db():
     try:
-        con = sqlite3.connect('files.db')
+        log.debug("Start initializing database")
+        con = sqlite3.connect("files.db")
         cur = con.cursor()
         cur.execute("DROP TABLE IF EXISTS files")
         cur.execute('''
@@ -41,11 +42,12 @@ def init_db():
                 decrypt_key text)''')
         con.commit()
         con.close()
+        log.debug("Database initialized")
     except Exception as e:
-        print(e)
+        log.error("Error while initializing database", e)
 
 
-def get_all():
+def get_all() -> list[File]:
     try:
         con = sqlite3.connect('files.db')
         cur = con.cursor()
@@ -62,24 +64,24 @@ def get_all():
         con.close()
         return files
     except Exception as e:
-        print(f"ERROR \tCould not list files from database. Error message: '{e}'")
+        print(f"ERROR \tCould not list files from database", e)
 
 
 def add(file_metadata: File, filepath: str) -> bool:
     try:
-        print(f"DEBUG \tCopy file {filepath} in db files directory: {File.default_db_files_directory}")
+        log.debug(f"Copy file {filepath} in db files directory: {File.default_db_files_directory}")
         shutil.copy(filepath, File.default_db_files_directory)
         con = sqlite3.connect('files.db')
 
         cur = con.cursor()
 
-        print(f"DEBUG \tAdd file in database: {file_metadata}")
+        log.debug(f"Add file in database: {file_metadata}")
         sql_cmd = f"INSERT INTO files(name, crypt_alg, encrypt_key, decrypt_key) VALUES (" \
                        f"'{file_metadata.name}'," \
                        f"'{file_metadata.crypt_alg}'," \
                        f"'{file_metadata.encrypt_key}'," \
                        f"'{file_metadata.decrypt_key}') "
-        print(f"DEBUG \tExecuting sql command: '{sql_cmd}'")
+        log.debug(f"Executing sql command: '{sql_cmd}'")
 
         cur.execute(sql_cmd)
         con.commit()
@@ -87,7 +89,7 @@ def add(file_metadata: File, filepath: str) -> bool:
         con.close()
         return True
     except Exception as e:
-        print(f"ERROR \tCould not add file to database. Error message: '{e}'")
+        log.error("Could not add file to database", e)
         return False
 
 
@@ -96,13 +98,13 @@ def remove(name: str) -> bool:
         os.remove(os.path.join(File.default_db_files_directory, name))
         con = sqlite3.connect('files.db')
         sql_cmd = f"DELETE FROM files WHERE name='{name}'"
-        print(f"DEBUG \tExecuting sql command: '{sql_cmd}'")
+        log.debug(f"Executing sql command: '{sql_cmd}'")
         cur = con.cursor()
         cur.execute(sql_cmd)
         con.commit()
         return True
     except Exception as e:
-        print(f"ERROR \tCould not remove file to database. Error message: '{e}'")
+        log.error("Could not remove file to database", e)
         return False
 
 
@@ -110,6 +112,6 @@ def read(name: str) -> None:
     try:
         file = open(os.path.join(File.default_db_files_directory, name))
         content = file.read()
-        print(f"INFO \tFile content: \n\r{content}")
+        log.info(f"File content: \n\r{content}")
     except Exception as e:
-        print(f"ERROR \tCould not read file from database. Error message: '{e}'")
+        log.error("Could not read file from database", e)

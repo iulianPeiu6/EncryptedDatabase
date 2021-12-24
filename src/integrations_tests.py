@@ -1,4 +1,5 @@
 import db.files
+from logging.logger import defaultLogger as log
 
 
 def test_db_files():
@@ -8,14 +9,14 @@ def test_db_files():
     files = db.files.get_all()
 
     for file in files:
-        print(f"DEBUG \t{file}")
+        log.debug(file)
         db.files.read(file.name)
 
     db.files.remove("test1.txt")
     files = db.files.get_all()
 
     for file in files:
-        print(f"DEBUG \t{file}")
+        log.debug(file)
 
 
 if __name__ == '__main__':
