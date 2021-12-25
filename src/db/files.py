@@ -2,7 +2,7 @@ import os
 import sqlite3
 import shutil
 from os import path
-from logging.logger import defaultLogger as log
+from ed_logging.logger import defaultLogger as log
 
 class File(object):
 
