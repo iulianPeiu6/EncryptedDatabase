@@ -1,12 +1,17 @@
 import os
 import sqlite3
+from enum import Enum
 
 from rsa import PrivateKey
-from rsa.key import AbstractKey
 
 from crypto.algs import RSA
 from os import path
 from ed_logging.logger import defaultLogger as log
+
+
+class Settings(str, Enum):
+    default_db_files_directory = path.join("..", "data")
+    db_location = path.join("..", "data", ".db", "ED.db")
 
 
 class File(object):
@@ -29,13 +34,11 @@ class File(object):
         "decrypt_key": 4
     }
 
-    default_db_files_directory = path.join("..", "data")
-
 
 def init_db():
     try:
         log.debug("Start initializing database")
-        con = sqlite3.connect("files.db")
+        con = sqlite3.connect(Settings.db_location.value)
         cur = con.cursor()
         cur.execute("DROP TABLE IF EXISTS files")
         cur.execute('''
@@ -54,7 +57,7 @@ def init_db():
 
 def get_all() -> list[File]:
     try:
-        with sqlite3.connect('files.db') as con:
+        with sqlite3.connect(Settings.db_location.value) as con:
             cur = con.cursor()
             sql_response = cur.execute('SELECT * FROM files')
             files = []
@@ -73,7 +76,7 @@ def get_all() -> list[File]:
 
 def add(file_metadata: File, filepath: str) -> bool:
     try:
-        log.debug(f"Creating file {filepath} in db files directory: {File.default_db_files_directory}")
+        log.debug(f"Creating file {filepath} in db files directory: {Settings.default_db_files_directory.value}")
 
         with open(filepath, "rb") as file:
             content = file.read()
@@ -82,11 +85,11 @@ def add(file_metadata: File, filepath: str) -> bool:
         file_metadata.encrypt_key = keys[0]
         file_metadata.decrypt_key = keys[1]
 
-        with open(path.join(File.default_db_files_directory, file_metadata.name), "wb+") as  encrypted_file:
+        with open(path.join(Settings.default_db_files_directory.value, file_metadata.name), "wb+") as  encrypted_file:
             encrypted_content = RSA.encrypt(content, file_metadata.encrypt_key)
             encrypted_file.write(encrypted_content)
 
-        with sqlite3.connect('files.db') as con:
+        with sqlite3.connect(Settings.db_location.value) as con:
             cur = con.cursor()
             log.debug(f"Add file in database: {file_metadata}")
             sql_cmd = f"INSERT INTO files(name, crypt_alg, encrypt_key, decrypt_key) VALUES (" \
@@ -106,8 +109,8 @@ def add(file_metadata: File, filepath: str) -> bool:
 
 def remove(name: str) -> bool:
     try:
-        os.remove(os.path.join(File.default_db_files_directory, name))
-        con = sqlite3.connect('files.db')
+        os.remove(os.path.join(Settings.default_db_files_directory.value, name))
+        con = sqlite3.connect(Settings.db_location.value)
         sql_cmd = f"DELETE FROM files WHERE name='{name}'"
         log.debug(f"Executing sql command: '{sql_cmd}'")
         cur = con.cursor()
@@ -121,7 +124,7 @@ def remove(name: str) -> bool:
 
 def read(name: str) -> None:
     try:
-        with sqlite3.connect('files.db') as con:
+        with sqlite3.connect(Settings.db_location.value) as con:
             log.debug(f"Get file metadata with name '{name}' from database")
             cur = con.cursor()
             sql_query = f"SELECT * FROM files WHERE name = '{name}'"
@@ -138,7 +141,7 @@ def read(name: str) -> None:
         exec(f"decrypt_key={file.decrypt_key}", globals(), exec_local_vars)
         decrypt_key = exec_local_vars['decrypt_key']
 
-        with open(os.path.join(File.default_db_files_directory, name), "rb") as file:
+        with open(os.path.join(Settings.default_db_files_directory.value, name), "rb") as file:
             content = file.read()
             decrypted_content = RSA.decrypt(content, decrypt_key)
             log.info(f"File content: \n\r{decrypted_content}")
