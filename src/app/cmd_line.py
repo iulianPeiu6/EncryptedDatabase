@@ -7,16 +7,21 @@ from app.cmd_handler import EDCommandHandler
 class Command(str, Enum):
     GET_ALL = r"^\s*ls" \
               r"\s*(-a|--all)\s*$"
+
     ADD = r"^\s*add" \
           r"\s*(-f|--file)\s*'(?P<filepath>[\/\\].*?\.[\w:]+)'" \
           r"(\s*(-alg|--algorithm)\s*(?P<algorithm>[\w]+))?" \
-          r"(\s*(-n|--name)\s*(?P<name>[\w]+))?\s*$"
+          r"(\s*(-n|--name)\s*(?P<name>[\w.]+))?\s*$"
+
+    REMOVE = r"^\s*rm" \
+             r"\s*(-f|--file)\s*(?P<name>[\w.]+)\s*$"
 
 
 class EDCommandLine(object):
     def __init__(self):
         self.get_all_cmd = re.compile(Command.GET_ALL.value)
         self.add_cmd = re.compile(Command.ADD.value)
+        self.remove_cmd = re.compile(Command.REMOVE.value)
 
     def run(self):
         while True:
@@ -31,3 +36,6 @@ class EDCommandLine(object):
             alg = options.group("algorithm")
             name = options.group("name")
             EDCommandHandler.handle_add_file_cmd(filepath, name, alg)
+        elif options := self.remove_cmd.match(command):
+            filename = options.group("name")
+            EDCommandHandler.handle_remove_cmd(filename)

@@ -26,3 +26,7 @@ class EDCommandHandler(object):
                     None)
         db.files.add(file, filepath)
 
+    @classmethod
+    def handle_remove_cmd(cls, filename):
+        log.debug(f"Handling add file command. Given arguments: file= '{filename}'")
+        db.files.remove(filename)

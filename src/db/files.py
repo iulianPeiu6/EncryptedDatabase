@@ -146,5 +146,6 @@ def read(name: str) -> None:
             content = file.read()
             decrypted_content = RSA.decrypt(content, decrypt_key)
             log.info(f"File content: \n\r{decrypted_content}")
+        log.info("File removed")
     except Exception as e:
         log.error("Could not read file from database", e)
