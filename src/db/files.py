@@ -44,7 +44,7 @@ def init_db():
         cur.execute('''
             CREATE TABLE files (
                 id integer primary key, 
-                name text not null, 
+                name text not null UNIQUE, 
                 crypt_alg text not null, 
                 encrypt_key text, 
                 decrypt_key text)''')
@@ -76,6 +76,7 @@ def get_all() -> list[File]:
 
 def add(file_metadata: File, filepath: str) -> bool:
     try:
+        log.debug(os.getcwd())
         log.debug(f"Creating file {filepath} in db files directory: {Settings.default_db_files_directory.value}")
 
         with open(filepath, "rb") as file:

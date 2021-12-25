@@ -4,6 +4,7 @@ from rsa import PublicKey, PrivateKey
 
 
 class Alg(str, Enum):
+    DEFAULT_ALG = "RSA"
     RSA = "RSA"
 
 
