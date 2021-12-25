@@ -1,8 +1,9 @@
 import os
 import sqlite3
-import shutil
+from crypto.algs import RSA
 from os import path
 from ed_logging.logger import defaultLogger as log
+
 
 class File(object):
 
@@ -59,7 +60,7 @@ def get_all() -> list[File]:
             crypt_alg = file[File.index["crypt_alg"]]
             encrypt_key = file[File.index["encrypt_key"]]
             decrypt_key = file[File.index["decrypt_key"]]
-            mapped_file = File(id, name,crypt_alg, encrypt_key, decrypt_key)
+            mapped_file = File(id, name, crypt_alg, encrypt_key, decrypt_key)
             files.append(mapped_file)
         con.close()
         return files
@@ -69,24 +70,31 @@ def get_all() -> list[File]:
 
 def add(file_metadata: File, filepath: str) -> bool:
     try:
-        log.debug(f"Copy file {filepath} in db files directory: {File.default_db_files_directory}")
-        shutil.copy(filepath, File.default_db_files_directory)
-        con = sqlite3.connect('files.db')
+        log.debug(f"Creating file {filepath} in db files directory: {File.default_db_files_directory}")
 
-        cur = con.cursor()
+        with open(filepath, "rb") as file:
+            content = file.read()
 
-        log.debug(f"Add file in database: {file_metadata}")
-        sql_cmd = f"INSERT INTO files(name, crypt_alg, encrypt_key, decrypt_key) VALUES (" \
-                       f"'{file_metadata.name}'," \
-                       f"'{file_metadata.crypt_alg}'," \
-                       f"'{file_metadata.encrypt_key}'," \
-                       f"'{file_metadata.decrypt_key}') "
-        log.debug(f"Executing sql command: '{sql_cmd}'")
+        keys = RSA.generate_keys()
+        file_metadata.encrypt_key = keys[0]
+        file_metadata.decrypt_key = keys[1]
 
-        cur.execute(sql_cmd)
-        con.commit()
+        with open(path.join(File.default_db_files_directory, file_metadata.name), "wb+") as  encrypted_file:
+            encrypted_content = RSA.encrypt(content, file_metadata.encrypt_key)
+            encrypted_file.write(encrypted_content)
 
-        con.close()
+        with sqlite3.connect('files.db') as con:
+            cur = con.cursor()
+            log.debug(f"Add file in database: {file_metadata}")
+            sql_cmd = f"INSERT INTO files(name, crypt_alg, encrypt_key, decrypt_key) VALUES (" \
+                      f"'{file_metadata.name}'," \
+                      f"'{file_metadata.crypt_alg}'," \
+                      f"'{file_metadata.encrypt_key}'," \
+                      f"'{file_metadata.decrypt_key}') "
+            log.debug(f"Executing sql command: '{sql_cmd}'")
+            cur.execute(sql_cmd)
+            con.commit()
+
         return True
     except Exception as e:
         log.error("Could not add file to database", e)

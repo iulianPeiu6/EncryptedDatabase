@@ -5,7 +5,7 @@ from ed_logging.logger import defaultLogger as log
 
 def test_db_files():
     db.files.init_db()
-    file = db.files.File(None, "test1.txt", "rsa", "encrypt_key", "decrypt_key")
+    file = db.files.File(None, "test1.txt", "rsa", None, None)
     db.files.add(file, r"D:\FII\Temp\test1.txt")
     files = db.files.get_all()
 
@@ -33,4 +33,4 @@ def test_rsa():
 
 if __name__ == '__main__':
     test_db_files()
-    test_rsa()
+    #test_rsa()
