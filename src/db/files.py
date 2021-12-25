@@ -1,5 +1,9 @@
 import os
 import sqlite3
+
+from rsa import PrivateKey
+from rsa.key import AbstractKey
+
 from crypto.algs import RSA
 from os import path
 from ed_logging.logger import defaultLogger as log
@@ -50,22 +54,21 @@ def init_db():
 
 def get_all() -> list[File]:
     try:
-        con = sqlite3.connect('files.db')
-        cur = con.cursor()
-        sql_response = cur.execute('SELECT * FROM files')
-        files = []
-        for file in sql_response:
-            id = file[File.index["id"]]
-            name = file[File.index["name"]]
-            crypt_alg = file[File.index["crypt_alg"]]
-            encrypt_key = file[File.index["encrypt_key"]]
-            decrypt_key = file[File.index["decrypt_key"]]
-            mapped_file = File(id, name, crypt_alg, encrypt_key, decrypt_key)
-            files.append(mapped_file)
-        con.close()
+        with sqlite3.connect('files.db') as con:
+            cur = con.cursor()
+            sql_response = cur.execute('SELECT * FROM files')
+            files = []
+            for file in sql_response:
+                id = file[File.index["id"]]
+                name = file[File.index["name"]]
+                crypt_alg = file[File.index["crypt_alg"]]
+                encrypt_key = file[File.index["encrypt_key"]]
+                decrypt_key = file[File.index["decrypt_key"]]
+                mapped_file = File(id, name, crypt_alg, encrypt_key, decrypt_key)
+                files.append(mapped_file)
         return files
     except Exception as e:
-        print(f"ERROR \tCould not list files from database", e)
+        log.error("Could not list files from database", e)
 
 
 def add(file_metadata: File, filepath: str) -> bool:
@@ -118,8 +121,26 @@ def remove(name: str) -> bool:
 
 def read(name: str) -> None:
     try:
-        file = open(os.path.join(File.default_db_files_directory, name))
-        content = file.read()
-        log.info(f"File content: \n\r{content}")
+        with sqlite3.connect('files.db') as con:
+            log.debug(f"Get file metadata with name '{name}' from database")
+            cur = con.cursor()
+            sql_query = f"SELECT * FROM files WHERE name = '{name}'"
+            log.debug(f"Executing sql query: '{sql_query}'")
+            sql_response = cur.execute(sql_query)
+            file_metadata = sql_response.fetchone()
+            file = File(file_metadata[File.index["id"]],
+                        file_metadata[File.index["name"]],
+                        file_metadata[File.index["crypt_alg"]],
+                        file_metadata[File.index["encrypt_key"]],
+                        file_metadata[File.index["decrypt_key"]])
+
+        exec_local_vars = {}
+        exec(f"decrypt_key={file.decrypt_key}", globals(), exec_local_vars)
+        decrypt_key = exec_local_vars['decrypt_key']
+
+        with open(os.path.join(File.default_db_files_directory, name), "rb") as file:
+            content = file.read()
+            decrypted_content = RSA.decrypt(content, decrypt_key)
+            log.info(f"File content: \n\r{decrypted_content}")
     except Exception as e:
         log.error("Could not read file from database", e)
