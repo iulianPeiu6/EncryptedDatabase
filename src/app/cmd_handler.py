@@ -13,6 +13,7 @@ class EDCommandHandler(object):
         files = db.files.get_all()
         for file in files:
             log.info(f"{file.id}: {file.name}")
+            log.debug(file)
 
     @staticmethod
     def handle_add_file_cmd(filepath, name=None, alg=None, ):
@@ -28,5 +29,14 @@ class EDCommandHandler(object):
 
     @classmethod
     def handle_remove_cmd(cls, filename):
-        log.debug(f"Handling add file command. Given arguments: file= '{filename}'")
+        log.debug(f"Handling remove file command. Given arguments: file= '{filename}'")
         db.files.remove(filename)
+
+    @classmethod
+    def handle_read_file_cmd(cls, filename):
+        log.debug(f"Handling read file command. Given arguments: file= '{filename}'")
+        db.files.read(filename)
+
+    @classmethod
+    def handle_unknown_cmd(cls, command):
+        log.error(f"Unknown command", command)

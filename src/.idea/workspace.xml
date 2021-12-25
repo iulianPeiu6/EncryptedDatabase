@@ -3,13 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="b6c3142f-1d55-455f-a03c-d0bec8d76d56" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/../data/.db/ED.db" beforeDir="false" afterPath="$PROJECT_DIR$/../data/.db/ED.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../data/test1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../data/test1.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/cmd_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/cmd_handler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/cmd_line.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/cmd_line.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/algs.py" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/algs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/db/files.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/console_tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/console_tests.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -188,8 +185,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.main (1)" />
-        <item itemvalue="Python.test" />
         <item itemvalue="Python.console_tests (1)" />
+        <item itemvalue="Python.test" />
         <item itemvalue="Python.console_tests (1)" />
         <item itemvalue="Python tests.Python tests in D:/FII/Py/Repos/EncryptedDatabase/src/db/tests.py" />
       </list>

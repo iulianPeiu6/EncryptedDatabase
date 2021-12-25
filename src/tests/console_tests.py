@@ -13,11 +13,11 @@ def test_db_files():
         log.debug(file)
         db.files.read(file.name)
 
-    # db.files.remove("test1.txt")
-    # files = db.files.get_all()
-    #
-    # for file in files:
-    #     log.debug(file)
+    db.files.remove("test1.txt")
+    files = db.files.get_all()
+
+    for file in files:
+        log.debug(file)
 
 
 def test_rsa():
@@ -25,12 +25,12 @@ def test_rsa():
     log.debug(keys)
     text = "Ana has apples"
     log.debug(f"Encrypting text:'{text}'")
-    cypher_bytes = RSA.encrypt(text, keys[0])
+    cypher_bytes = RSA.encrypt(text.encode(), keys[0])
     log.debug(f"Encrypted text:{cypher_bytes}")
     decrypted_text = RSA.decrypt(cypher_bytes, keys[1])
     log.debug(f"Decrypted text:'{decrypted_text}'")
 
 
 if __name__ == '__main__':
-    test_db_files()
-    #test_rsa()
+    #test_db_files()
+    test_rsa()
