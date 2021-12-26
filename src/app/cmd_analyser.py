@@ -1,3 +1,5 @@
+"""Command analyser
+"""
 import re
 from enum import Enum
 
@@ -5,6 +7,8 @@ from app.cmd_handler import EDCommandHandler
 
 
 class Command(str, Enum):
+    """Stores the regex representation of all available command
+    """
     GET_ALL = r"^\s*ls" \
               r"\s*(-a|--all)\s*$"
 
@@ -31,11 +35,17 @@ class EDCommandLine(object):
         self.exit_cmd = re.compile(Command.EXIT.value)
 
     def run(self):
+        """Run the ED Application command line
+        """
         while True:
             command = input("Command:>\t")
             self.handle_command(command)
 
     def handle_command(self, command):
+        """Handle a given command
+
+        :param command: the string representation of the command
+        """
         if self.get_all_cmd.match(command):
             EDCommandHandler.handle_list_files_cmd()
         elif options := self.add_cmd.match(command):
@@ -49,7 +59,7 @@ class EDCommandLine(object):
         elif options := self.read_cmd.match(command):
             filename = options.group("name")
             EDCommandHandler.handle_read_file_cmd(filename)
-        elif options := self.exit_cmd.match(command):
+        elif self.exit_cmd.match(command):
             EDCommandHandler.handle_exit_cmd()
         else:
             EDCommandHandler.handle_unknown_cmd(command)
