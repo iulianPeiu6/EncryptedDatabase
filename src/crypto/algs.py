@@ -23,7 +23,7 @@ class Settings(int, Enum):
 class RSA(object):
     """RSA algorithm: key generation, encryption and decryption
     """
-    
+
     @staticmethod
     def generate_keys() -> tuple[PublicKey, PrivateKey]:
         """Generate a tuple representing the public and private keys with the

@@ -1,9 +1,9 @@
+"""DB files query and DMLs commands implementations
+"""
 import os
 import sqlite3
 from enum import Enum
-
 from rsa import PrivateKey
-
 from crypto.algs import RSA
 from os import path
 from ed_logging.logger import defaultLogger as log
@@ -15,8 +15,19 @@ class Settings(str, Enum):
 
 
 class File(object):
+    """A model class representing a record in the files database
+    """
 
     def __init__(self, id, name, crypt_alg, encrypt_key, decrypt_key):
+        """File Constructor
+
+        :param id: file id
+        :param name: file name
+        :param crypt_alg: file encryption algorithm that is used
+        :param encrypt_key: file encryption key
+        :param decrypt_key: file decryption key
+        """
+
         self.id = id
         self.name = name
         self.crypt_alg = crypt_alg
@@ -24,6 +35,10 @@ class File(object):
         self.decrypt_key = decrypt_key
 
     def __str__(self):
+        """
+
+        :return: a string representing the object
+        """
         return f"({self.id}, '{self.name}', '{self.crypt_alg}', '{self.encrypt_key}', '{self.decrypt_key}')"
 
     index = {
@@ -36,26 +51,34 @@ class File(object):
 
 
 def init_db():
+    """Initialize database.
+    Create an empty database.
+    Create an empty files table.
+    """
     try:
         log.debug("Start initializing database")
-        con = sqlite3.connect(Settings.db_location.value)
-        cur = con.cursor()
-        cur.execute("DROP TABLE IF EXISTS files")
-        cur.execute('''
-            CREATE TABLE files (
-                id integer primary key, 
-                name text not null UNIQUE, 
-                crypt_alg text not null, 
-                encrypt_key text, 
-                decrypt_key text)''')
-        con.commit()
-        con.close()
+        with sqlite3.connect(Settings.db_location.value) as con:
+            cur = con.cursor()
+            cur.execute("DROP TABLE IF EXISTS files")
+            cur.execute('''
+                CREATE TABLE files (
+                    id integer primary key, 
+                    name text not null UNIQUE, 
+                    crypt_alg text not null, 
+                    encrypt_key text, 
+                    decrypt_key text)''')
+            con.commit()
+            con.close()
         log.debug("Database initialized")
     except Exception as e:
         log.error("Error while initializing database", e)
 
 
 def get_all() -> list[File]:
+    """List all files from database and map them to File object.
+
+    :return: a list of files
+    """
     try:
         with sqlite3.connect(Settings.db_location.value) as con:
             cur = con.cursor()
@@ -75,6 +98,13 @@ def get_all() -> list[File]:
 
 
 def add(file_metadata: File, filepath: str) -> bool:
+    """Add a given file in database.
+
+    :param file_metadata: file metadata:  name, encryption algorithm, keys
+    :param filepath: local file path
+    :return: True if success, False otherwise
+    """
+
     try:
         log.debug(f"Creating file {filepath} in db files directory: {Settings.default_db_files_directory.value}")
 
@@ -108,6 +138,12 @@ def add(file_metadata: File, filepath: str) -> bool:
 
 
 def remove(name: str) -> bool:
+    """Delete a file from database
+
+    :param name: the remote filename
+    :return: True if success, False otherwise
+    """
+
     try:
         os.remove(os.path.join(Settings.default_db_files_directory.value, name))
         con = sqlite3.connect(Settings.db_location.value)
@@ -123,7 +159,13 @@ def remove(name: str) -> bool:
         return False
 
 
-def read(name: str) -> None:
+def read(name: str):
+    """Read a file from database
+
+    Query file, decrypt file content and print it.
+
+    :param name: remote file name
+    """
     try:
         with sqlite3.connect(Settings.db_location.value) as con:
             log.debug(f"Get file metadata with name '{name}' from database")
