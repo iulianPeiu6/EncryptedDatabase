@@ -6,6 +6,13 @@ class Environment(Enum):
     PRODUCTION = 1
 
 
+class Color:
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    BASE = '\033[0m'
+
+
 class LogLevel(str, Enum):
     INFO = "INFO"
     DEBUG = "DEBUG"
@@ -18,17 +25,17 @@ class Logger(object):
 
     def info(self, msg):
         if self._env == Environment.DEVELOPMENT:
-            print(f"{LogLevel.INFO} \t{msg}")
+            print(f"{Color.GREEN}{LogLevel.INFO}{Color.BASE} \t{msg}")
         else:
             print(msg)
 
     def debug(self, msg):
         if self._env == Environment.DEVELOPMENT:
-            print(f"{LogLevel.DEBUG} \t{msg}")
+            print(f"{Color.BLUE}{LogLevel.DEBUG}{Color.BASE} \t{msg}")
 
     def error(self, msg, error):
         if self._env == Environment.DEVELOPMENT:
-            print(f"{LogLevel.ERROR} \t{msg}:'{error}'")
+            print(f"{Color.RED}{LogLevel.ERROR}{Color.BASE} \t{msg}:'{error}'")
 
 
 defaultLogger = Logger(Environment.DEVELOPMENT)
