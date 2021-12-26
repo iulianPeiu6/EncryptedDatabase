@@ -9,7 +9,7 @@ class Alg(str, Enum):
 
 
 class Settings(int, Enum):
-    DEFAULT_KEY_SIZE = 256
+    DEFAULT_KEY_SIZE = 512
 
 
 class RSA(object):

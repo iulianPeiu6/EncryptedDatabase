@@ -1,4 +1,5 @@
 import os
+import sys
 
 import db.files
 from crypto.algs import Alg
@@ -20,6 +21,14 @@ class EDCommandHandler(object):
         filepath = filepath[1:]
         log.debug(f"Handling add file command. Given arguments: file= '{filepath}', name= '{name}', alg='{alg}")
         filename = os.path.basename(filepath)
+
+        if alg is None:
+            alg = Alg.DEFAULT_ALG.value
+
+        if alg not in [item for item in Alg]:
+            log.error("Validation error", "Not a valid encrypting algorithm provided")
+            return
+
         file = File(None,
                     filename if name is None else name,
                     Alg.DEFAULT_ALG if alg is None else alg,
@@ -40,3 +49,7 @@ class EDCommandHandler(object):
     @classmethod
     def handle_unknown_cmd(cls, command):
         log.error(f"Unknown command", command)
+
+    @classmethod
+    def handle_exit_cmd(cls):
+        sys.exit()

@@ -76,7 +76,6 @@ def get_all() -> list[File]:
 
 def add(file_metadata: File, filepath: str) -> bool:
     try:
-        log.debug(os.getcwd())
         log.debug(f"Creating file {filepath} in db files directory: {Settings.default_db_files_directory.value}")
 
         with open(filepath, "rb") as file:
@@ -117,6 +116,7 @@ def remove(name: str) -> bool:
         cur = con.cursor()
         cur.execute(sql_cmd)
         con.commit()
+        log.info("File removed")
         return True
     except Exception as e:
         log.error("Could not remove file to database", e)
@@ -146,6 +146,5 @@ def read(name: str) -> None:
             content = file.read()
             decrypted_content = RSA.decrypt(content, decrypt_key)
             log.info(f"File content: \n\r{decrypted_content}")
-        log.info("File removed")
     except Exception as e:
         log.error("Could not read file from database", e)

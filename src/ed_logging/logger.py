@@ -36,6 +36,8 @@ class Logger(object):
     def error(self, msg, error):
         if self._env == Environment.DEVELOPMENT:
             print(f"{Color.RED}{LogLevel.ERROR}{Color.BASE} \t{msg}:'{error}'")
+        else:
+            print(f"{Color.RED}{msg}:'{error}'{Color.BASE}")
 
 
 defaultLogger = Logger(Environment.DEVELOPMENT)

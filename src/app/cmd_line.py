@@ -19,6 +19,8 @@ class Command(str, Enum):
     READ = r"^\s*read" \
            r"\s*(-f|--file)\s*(?P<name>[\w.]+)\s*$"
 
+    EXIT = r"^\s*(exit|quit|q)\s*$"
+
 
 class EDCommandLine(object):
     def __init__(self):
@@ -26,6 +28,7 @@ class EDCommandLine(object):
         self.add_cmd = re.compile(Command.ADD.value)
         self.remove_cmd = re.compile(Command.REMOVE.value)
         self.read_cmd = re.compile(Command.READ.value)
+        self.exit_cmd = re.compile(Command.EXIT.value)
 
     def run(self):
         while True:
@@ -46,5 +49,7 @@ class EDCommandLine(object):
         elif options := self.read_cmd.match(command):
             filename = options.group("name")
             EDCommandHandler.handle_read_file_cmd(filename)
+        elif options := self.exit_cmd.match(command):
+            EDCommandHandler.handle_exit_cmd()
         else:
             EDCommandHandler.handle_unknown_cmd(command)
