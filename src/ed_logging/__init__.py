@@ -1,0 +1,2 @@
+"""Contains implementation for logging.
+"""
