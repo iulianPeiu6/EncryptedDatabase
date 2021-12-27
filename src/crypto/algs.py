@@ -17,7 +17,7 @@ class Settings(int, Enum):
     """Contains settings regarding: default key size(bits)
     """
 
-    DEFAULT_KEY_SIZE = 512
+    DEFAULT_KEY_SIZE = 2048
 
 
 class RSA(object):

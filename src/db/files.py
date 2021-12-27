@@ -174,6 +174,8 @@ def read(name: str):
             log.debug(f"Executing sql query: '{sql_query}'")
             sql_response = cur.execute(sql_query)
             file_metadata = sql_response.fetchone()
+            if file_metadata is None:
+                raise Exception("File not found")
             file = File(file_metadata[File.index["id"]],
                         file_metadata[File.index["name"]],
                         file_metadata[File.index["crypt_alg"]],

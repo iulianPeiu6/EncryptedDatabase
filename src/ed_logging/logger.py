@@ -5,17 +5,13 @@ from enum import Enum
 
 
 class Environment(Enum):
-    """Stores an enumeration of the possible environments: Production or Development.
-    """
-
+    """Stores an enumeration of the possible environments: Production or Development."""
     DEVELOPMENT = 0
     PRODUCTION = 1
 
 
 class Color:
-    """Stores an enumeration of the colors used for logger customization.
-    """
-
+    """Stores an enumeration of the colors used for logger customization."""
     BLUE = '\033[94m'
     GREEN = '\033[92m'
     RED = '\033[91m'
@@ -23,8 +19,7 @@ class Color:
 
 
 class LogLevel(str, Enum):
-    """Stores an enumeration of the possible logging levels.
-    """
+    """Stores an enumeration of the possible logging levels."""
     INFO = "INFO"
     DEBUG = "DEBUG"
     ERROR = "ERROR"

@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b6c3142f-1d55-455f-a03c-d0bec8d76d56" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/ed_logging/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/ed_logging/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crypto/algs.py" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/algs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/files.py" beforeDir="false" afterPath="$PROJECT_DIR$/db/files.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ed_logging/logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/ed_logging/logger.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -30,6 +32,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
