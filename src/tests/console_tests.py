@@ -32,7 +32,7 @@ def test_rsa():
 
 
 def test_aes():
-    keys = AES.generate_key()
+    keys = AES.generate_keys()
     log.debug(keys)
     text = "Ana has apples"
     log.debug(f"Encrypting text:'{text}'")

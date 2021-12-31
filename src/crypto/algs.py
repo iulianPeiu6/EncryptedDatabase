@@ -70,21 +70,22 @@ class AESKey(object):
         self.iv = iv
 
     def __repr__(self):
-        return f"AESKey({self.key}, {self.iv})"
+        return f"AESKey(\"{self.key}\", \"{self.iv}\")"
 
     def __str__(self):
-        return f"AESKey({self.key}, {self.iv})"
+        return f"AESKey(\"{self.key}\", \"{self.iv}\")"
 
 
 class AES(object):
     @staticmethod
-    def generate_key() -> tuple[AESKey, AESKey]:
-        key = "".join(random.choices(string.printable, k=Settings.AES_DEFAULT_KEY_SIZE.value))
-        iv = "".join(random.choices(string.printable, k=Settings.AES_DEFAULT_KEY_SIZE.value))
+    def generate_keys() -> tuple[AESKey, AESKey]:
+        key = "".join(random.choices(string.ascii_letters + string.digits, k=Settings.AES_DEFAULT_KEY_SIZE.value))
+        iv = "".join(random.choices(string.ascii_letters + string.digits, k=Settings.AES_DEFAULT_KEY_SIZE.value))
         return AESKey(key, iv), AESKey(key, iv)
 
     @staticmethod
-    def ecb_encrypt(plaintext, key, block_size=16):
+    def ecb_encrypt(plaintext, aes_key: AESKey, block_size=16):
+        key = aes_key.key
         plaintext = AES._add_padding(plaintext, block_size)
 
         blocks = [plaintext[i:i + block_size] for i in range(0, len(plaintext), block_size)]
@@ -94,10 +95,11 @@ class AES(object):
             cipher_block = AES._encrypt(block, key)
             ciphertext += cipher_block
 
-        return ciphertext
+        return ciphertext.encode()
 
     @staticmethod
-    def ecb_decrypt(ciphertext, key, block_size=16):
+    def ecb_decrypt(ciphertext, aes_key: AESKey, block_size=16):
+        key = aes_key.key
         cipher_blocks = [ciphertext[i:i + block_size] for i in range(0, len(ciphertext), block_size)]
         plaintext = ""
 

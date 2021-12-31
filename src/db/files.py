@@ -4,7 +4,7 @@ import os
 import sqlite3
 from enum import Enum
 from rsa import PrivateKey
-from crypto.algs import RSA
+from crypto.algs import RSA, Alg, AES, AESKey
 from os import path
 from ed_logging.logger import defaultLogger as log
 
@@ -111,13 +111,23 @@ def add(file_metadata: File, filepath: str) -> bool:
         with open(filepath, "rb") as file:
             content = file.read()
 
-        keys = RSA.generate_keys()
+        if file_metadata.crypt_alg == Alg.AES_ECB.value:
+            keys = AES.generate_keys()
+        else:
+            keys = RSA.generate_keys()
+
         file_metadata.encrypt_key = keys[0]
         file_metadata.decrypt_key = keys[1]
 
         with open(path.join(Settings.default_db_files_directory.value, file_metadata.name), "wb+") as encrypted_file:
-            encrypted_content = RSA.encrypt(content, file_metadata.encrypt_key)
+            log.debug(f"Start encrypting file using {file_metadata.crypt_alg} algorithm.")
+            if file_metadata.crypt_alg == Alg.AES_ECB.value:
+                encrypted_content = AES.ecb_encrypt(content.decode(), file_metadata.encrypt_key)
+            else:
+                encrypted_content = RSA.encrypt(content, file_metadata.encrypt_key)
+            log.debug(f"Content Encrypted.")
             encrypted_file.write(encrypted_content)
+            log.debug(f"Encrypted file created.")
 
         with sqlite3.connect(Settings.db_location.value) as con:
             cur = con.cursor()
@@ -182,13 +192,19 @@ def read(name: str):
                         file_metadata[File.index["encrypt_key"]],
                         file_metadata[File.index["decrypt_key"]])
 
+        log.debug(f"Getting decrypt key.")
         exec_local_vars = {}
         exec(f"decrypt_key={file.decrypt_key}", globals(), exec_local_vars)
         decrypt_key = exec_local_vars['decrypt_key']
 
-        with open(os.path.join(Settings.default_db_files_directory.value, name), "rb") as file:
-            content = file.read()
-            decrypted_content = RSA.decrypt(content, decrypt_key)
+        with open(os.path.join(Settings.default_db_files_directory.value, name), "rb") as physical_file:
+            log.debug(f"Start decrypting file '{name}' using {file.crypt_alg} algorithm.")
+            content = physical_file.read()
+            if file.crypt_alg == Alg.AES_ECB:
+                decrypted_content = AES.ecb_decrypt(content.decode(), decrypt_key)
+            else:
+                decrypted_content = RSA.decrypt(content, decrypt_key)
+            log.debug(f"Content Encrypted.")
             log.info(f"File content: \n\r{decrypted_content}")
     except Exception as e:
         log.error("Could not read file from database", e)
