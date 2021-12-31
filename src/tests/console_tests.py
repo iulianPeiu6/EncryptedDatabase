@@ -1,5 +1,5 @@
 import db.files
-from crypto.algs import RSA
+from crypto.algs import RSA, AES
 from ed_logging.logger import defaultLogger as log
 
 
@@ -31,6 +31,18 @@ def test_rsa():
     log.debug(f"Decrypted text:'{decrypted_text}'")
 
 
+def test_aes():
+    keys = AES.generate_keys()
+    log.debug(keys)
+    text = "Ana has apples"
+    log.debug(f"Encrypting text:'{text}'")
+    cypher_bytes = AES.ecb_encrypt(text, keys[0].key)
+    log.debug(f"Encrypted text:{cypher_bytes}")
+    decrypted_text = AES.ecb_decrypt(cypher_bytes, keys[0].key)
+    log.debug(f"Decrypted text:'{decrypted_text}'")
+
+
 if __name__ == '__main__':
     #test_db_files()
-    test_rsa()
+    #test_rsa()
+    test_aes()

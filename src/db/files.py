@@ -1,10 +1,9 @@
-"""DB files query and DMLs commands implementations
-"""
+"""DB files query and DMLs commands implementations"""
 import os
 import sqlite3
 from enum import Enum
 from rsa import PrivateKey
-from crypto.algs import RSA
+from crypto.algs import RSA, Alg, AES, AESKey
 from os import path
 from ed_logging.logger import defaultLogger as log
 
@@ -15,9 +14,7 @@ class Settings(str, Enum):
 
 
 class File(object):
-    """A model class representing a record in the files database
-    """
-
+    """A model class representing a record in the files database"""
     def __init__(self, id, name, crypt_alg, encrypt_key, decrypt_key):
         """File Constructor
 
@@ -27,7 +24,6 @@ class File(object):
         :param encrypt_key: file encryption key
         :param decrypt_key: file decryption key
         """
-
         self.id = id
         self.name = name
         self.crypt_alg = crypt_alg
@@ -104,20 +100,29 @@ def add(file_metadata: File, filepath: str) -> bool:
     :param filepath: local file path
     :return: True if success, False otherwise
     """
-
     try:
         log.debug(f"Creating file {filepath} in db files directory: {Settings.default_db_files_directory.value}")
 
         with open(filepath, "rb") as file:
             content = file.read()
 
-        keys = RSA.generate_keys()
+        if file_metadata.crypt_alg == Alg.AES_ECB.value:
+            keys = AES.generate_keys()
+        else:
+            keys = RSA.generate_keys()
+
         file_metadata.encrypt_key = keys[0]
         file_metadata.decrypt_key = keys[1]
 
-        with open(path.join(Settings.default_db_files_directory.value, file_metadata.name), "wb+") as  encrypted_file:
-            encrypted_content = RSA.encrypt(content, file_metadata.encrypt_key)
+        with open(path.join(Settings.default_db_files_directory.value, file_metadata.name), "wb+") as encrypted_file:
+            log.debug(f"Start encrypting file using {file_metadata.crypt_alg} algorithm.")
+            if file_metadata.crypt_alg == Alg.AES_ECB.value:
+                encrypted_content = AES.ecb_encrypt(content.decode(), file_metadata.encrypt_key)
+            else:
+                encrypted_content = RSA.encrypt(content, file_metadata.encrypt_key)
+            log.debug(f"Content Encrypted.")
             encrypted_file.write(encrypted_content)
+            log.debug(f"Encrypted file created.")
 
         with sqlite3.connect(Settings.db_location.value) as con:
             cur = con.cursor()
@@ -143,7 +148,6 @@ def remove(name: str) -> bool:
     :param name: the remote filename
     :return: True if success, False otherwise
     """
-
     try:
         os.remove(os.path.join(Settings.default_db_files_directory.value, name))
         con = sqlite3.connect(Settings.db_location.value)
@@ -174,19 +178,27 @@ def read(name: str):
             log.debug(f"Executing sql query: '{sql_query}'")
             sql_response = cur.execute(sql_query)
             file_metadata = sql_response.fetchone()
+            if file_metadata is None:
+                raise Exception("File not found")
             file = File(file_metadata[File.index["id"]],
                         file_metadata[File.index["name"]],
                         file_metadata[File.index["crypt_alg"]],
                         file_metadata[File.index["encrypt_key"]],
                         file_metadata[File.index["decrypt_key"]])
 
+        log.debug(f"Getting decrypt key.")
         exec_local_vars = {}
         exec(f"decrypt_key={file.decrypt_key}", globals(), exec_local_vars)
         decrypt_key = exec_local_vars['decrypt_key']
 
-        with open(os.path.join(Settings.default_db_files_directory.value, name), "rb") as file:
-            content = file.read()
-            decrypted_content = RSA.decrypt(content, decrypt_key)
+        with open(os.path.join(Settings.default_db_files_directory.value, name), "rb") as physical_file:
+            log.debug(f"Start decrypting file '{name}' using {file.crypt_alg} algorithm.")
+            content = physical_file.read()
+            if file.crypt_alg == Alg.AES_ECB:
+                decrypted_content = AES.ecb_decrypt(content.decode(), decrypt_key)
+            else:
+                decrypted_content = RSA.decrypt(content, decrypt_key)
+            log.debug(f"Content Encrypted.")
             log.info(f"File content: \n\r{decrypted_content}")
     except Exception as e:
         log.error("Could not read file from database", e)

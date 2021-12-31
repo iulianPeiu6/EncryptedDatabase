@@ -1,2 +1,1 @@
-"""Contains implementation for logging.
-"""
+"""Contains implementation for logging."""

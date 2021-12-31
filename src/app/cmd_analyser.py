@@ -1,14 +1,12 @@
-"""Command analyser
-"""
+"""Command analyser"""
 import re
 from enum import Enum
-
 from app.cmd_handler import EDCommandHandler
-
+from ed_logging import logger
+from ed_logging.logger import defaultLogger as log
 
 class Command(str, Enum):
-    """Stores the regex representation of all available command
-    """
+    """Stores the regex representation of all available command"""
     GET_ALL = r"^\s*ls" \
               r"\s*(-a|--all)\s*$"
 
@@ -35,10 +33,10 @@ class EDCommandLine(object):
         self.exit_cmd = re.compile(Command.EXIT.value)
 
     def run(self):
-        """Run the ED Application command line
-        """
+        """Run the ED Application command line"""
+        log.debug("EDCommandLine is running ...")
         while True:
-            command = input("Command:>\t")
+            command = input("cmd:>\t")
             self.handle_command(command)
 
     def handle_command(self, command):

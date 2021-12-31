@@ -1,21 +1,15 @@
-"""Logger
-"""
-
+"""Logger"""
 from enum import Enum
 
 
 class Environment(Enum):
-    """Stores an enumeration of the possible environments: Production or Development.
-    """
-
+    """Stores an enumeration of the possible environments: Production or Development."""
     DEVELOPMENT = 0
     PRODUCTION = 1
 
 
 class Color:
-    """Stores an enumeration of the colors used for logger customization.
-    """
-
+    """Stores an enumeration of the colors used for logger customization."""
     BLUE = '\033[94m'
     GREEN = '\033[92m'
     RED = '\033[91m'
@@ -23,8 +17,7 @@ class Color:
 
 
 class LogLevel(str, Enum):
-    """Stores an enumeration of the possible logging levels.
-    """
+    """Stores an enumeration of the possible logging levels."""
     INFO = "INFO"
     DEBUG = "DEBUG"
     ERROR = "ERROR"
@@ -38,7 +31,6 @@ class Logger(object):
     In production the debug is disabled and the info and error tags are ignored
     and only the message is printed.
     """
-
     def __init__(self, env):
         """Constructor
 
@@ -51,7 +43,6 @@ class Logger(object):
 
         :param msg: the log message
         """
-
         if self._env == Environment.DEVELOPMENT:
             print(f"{Color.GREEN}{LogLevel.INFO}{Color.BASE} \t{msg}")
         else:
@@ -62,7 +53,6 @@ class Logger(object):
 
         :param msg: the log message
         """
-
         if self._env == Environment.DEVELOPMENT:
             print(f"{Color.BLUE}{LogLevel.DEBUG}{Color.BASE} \t{msg}")
 
@@ -72,7 +62,6 @@ class Logger(object):
         :param msg: the log message
         :param error: the associated error
         """
-
         if self._env == Environment.DEVELOPMENT:
             print(f"{Color.RED}{LogLevel.ERROR}{Color.BASE} \t{msg}:'{error}'")
         else:

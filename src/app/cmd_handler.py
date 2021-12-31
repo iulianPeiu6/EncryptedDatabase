@@ -1,5 +1,4 @@
-"""Command handler
-"""
+"""Command handler"""
 import os
 import sys
 
@@ -10,9 +9,7 @@ from ed_logging.logger import defaultLogger as log
 
 
 class EDCommandHandler(object):
-    """Contains a collection of command handlers implemented as static class methods
-    """
-
+    """Contains a collection of command handlers implemented as static class methods"""
     @staticmethod
     def handle_list_files_cmd():
         """Handle the list files command.
@@ -21,7 +18,6 @@ class EDCommandHandler(object):
         it will print only the id and name of the file, otherwise it will print all
         the file details on the screen for debugging purposes
         """
-
         log.debug("Handling list all files command")
         files = db.files.get_all()
         for file in files:
@@ -40,7 +36,6 @@ class EDCommandHandler(object):
         filename
         :param alg: the encryption algorithm. If not specified, the default will be RSA
         """
-
         filepath = filepath[1:]
         log.debug(f"Handling add file command. Given arguments: file= '{filepath}', name= '{name}', alg='{alg}")
         filename = os.path.basename(filepath)
@@ -67,7 +62,6 @@ class EDCommandHandler(object):
 
         :param filename: the remote filename
         """
-
         log.debug(f"Handling remove file command. Given arguments: file= '{filename}'")
         db.files.remove(filename)
 
@@ -79,7 +73,6 @@ class EDCommandHandler(object):
 
         :param filename: the remote filename
         """
-
         log.debug(f"Handling read file command. Given arguments: file= '{filename}'")
         db.files.read(filename)
 
@@ -91,7 +84,6 @@ class EDCommandHandler(object):
 
         :param command: the string representation of the command
         """
-
         log.error(f"Unknown command", command)
 
     @classmethod
@@ -100,5 +92,4 @@ class EDCommandHandler(object):
 
         Close the command line(application).
         """
-
         sys.exit()
