@@ -1,5 +1,4 @@
-"""DB files query and DMLs commands implementations
-"""
+"""DB files query and DMLs commands implementations"""
 import os
 import sqlite3
 from enum import Enum
@@ -15,9 +14,7 @@ class Settings(str, Enum):
 
 
 class File(object):
-    """A model class representing a record in the files database
-    """
-
+    """A model class representing a record in the files database"""
     def __init__(self, id, name, crypt_alg, encrypt_key, decrypt_key):
         """File Constructor
 
@@ -27,7 +24,6 @@ class File(object):
         :param encrypt_key: file encryption key
         :param decrypt_key: file decryption key
         """
-
         self.id = id
         self.name = name
         self.crypt_alg = crypt_alg
@@ -104,7 +100,6 @@ def add(file_metadata: File, filepath: str) -> bool:
     :param filepath: local file path
     :return: True if success, False otherwise
     """
-
     try:
         log.debug(f"Creating file {filepath} in db files directory: {Settings.default_db_files_directory.value}")
 
@@ -153,7 +148,6 @@ def remove(name: str) -> bool:
     :param name: the remote filename
     :return: True if success, False otherwise
     """
-
     try:
         os.remove(os.path.join(Settings.default_db_files_directory.value, name))
         con = sqlite3.connect(Settings.db_location.value)

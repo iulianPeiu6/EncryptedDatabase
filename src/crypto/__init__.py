@@ -1,2 +1,1 @@
-"""Contains implementation of cryptography algorithms: RSA
-"""
+"""Contains implementation of cryptography algorithms: RSA"""

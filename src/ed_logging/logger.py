@@ -1,6 +1,4 @@
-"""Logger
-"""
-
+"""Logger"""
 from enum import Enum
 
 
@@ -33,7 +31,6 @@ class Logger(object):
     In production the debug is disabled and the info and error tags are ignored
     and only the message is printed.
     """
-
     def __init__(self, env):
         """Constructor
 
@@ -46,7 +43,6 @@ class Logger(object):
 
         :param msg: the log message
         """
-
         if self._env == Environment.DEVELOPMENT:
             print(f"{Color.GREEN}{LogLevel.INFO}{Color.BASE} \t{msg}")
         else:
@@ -57,7 +53,6 @@ class Logger(object):
 
         :param msg: the log message
         """
-
         if self._env == Environment.DEVELOPMENT:
             print(f"{Color.BLUE}{LogLevel.DEBUG}{Color.BASE} \t{msg}")
 
@@ -67,7 +62,6 @@ class Logger(object):
         :param msg: the log message
         :param error: the associated error
         """
-
         if self._env == Environment.DEVELOPMENT:
             print(f"{Color.RED}{LogLevel.ERROR}{Color.BASE} \t{msg}:'{error}'")
         else:
