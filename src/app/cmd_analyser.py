@@ -1,9 +1,9 @@
 """Command analyser"""
 import re
 from enum import Enum
-
 from app.cmd_handler import EDCommandHandler
-
+from ed_logging import logger
+from ed_logging.logger import defaultLogger as log
 
 class Command(str, Enum):
     """Stores the regex representation of all available command"""
@@ -34,6 +34,7 @@ class EDCommandLine(object):
 
     def run(self):
         """Run the ED Application command line"""
+        log.debug("EDCommandLine is running ...")
         while True:
             command = input("cmd:>\t")
             self.handle_command(command)
