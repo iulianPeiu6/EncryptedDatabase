@@ -115,7 +115,7 @@ def add(file_metadata: File, filepath: str) -> bool:
         file_metadata.encrypt_key = keys[0]
         file_metadata.decrypt_key = keys[1]
 
-        with open(path.join(Settings.default_db_files_directory.value, file_metadata.name), "wb+") as  encrypted_file:
+        with open(path.join(Settings.default_db_files_directory.value, file_metadata.name), "wb+") as encrypted_file:
             encrypted_content = RSA.encrypt(content, file_metadata.encrypt_key)
             encrypted_file.write(encrypted_content)
 

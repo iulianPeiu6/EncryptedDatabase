@@ -38,7 +38,7 @@ class EDCommandLine(object):
         """Run the ED Application command line
         """
         while True:
-            command = input("Command:>\t")
+            command = input("cmd:>\t")
             self.handle_command(command)
 
     def handle_command(self, command):
