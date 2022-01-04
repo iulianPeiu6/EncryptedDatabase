@@ -1,3 +1,4 @@
+import db.files
 from app.cmd_analyser import EDCommandLine
 
 if __name__ == '__main__':

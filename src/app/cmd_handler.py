@@ -25,7 +25,7 @@ class EDCommandHandler(object):
             log.debug(file)
 
     @staticmethod
-    def handle_add_file_cmd(filepath: str, name: str = None, alg: str = None):
+    def handle_add_file_cmd(filepath: str, name: str = None, alg: str = None, overwrite: bool = False):
         """Handle the add file command with different arguments like filepath(required),
         name(optional) and algorithm(optional).
 
@@ -35,10 +35,12 @@ class EDCommandHandler(object):
         :param name: the remote filename. If not specified, the default will be the local
         filename
         :param alg: the encryption algorithm. If not specified, the default will be RSA
+        :param overwrite: overwrite
         """
         filepath = filepath[1:]
         log.debug(f"Handling add file command. Given arguments: file= '{filepath}', name= '{name}', alg='{alg}")
         filename = os.path.basename(filepath)
+        size = os.path.getsize(filepath)
 
         if alg is None:
             alg = Alg.DEFAULT_ALG.value
@@ -50,9 +52,9 @@ class EDCommandHandler(object):
         file = File(None,
                     filename if name is None else name,
                     Alg.DEFAULT_ALG if alg is None else alg,
-                    None,
+                    size,
                     None)
-        db.files.add(file, filepath)
+        db.files.add(file, filepath, overwrite)
 
     @classmethod
     def handle_remove_cmd(cls, filename: str):

@@ -5,6 +5,7 @@ from app.cmd_handler import EDCommandHandler
 from ed_logging import logger
 from ed_logging.logger import defaultLogger as log
 
+
 class Command(str, Enum):
     """Stores the regex representation of all available command"""
     GET_ALL = r"^\s*ls" \
@@ -13,7 +14,8 @@ class Command(str, Enum):
     ADD = r"^\s*add" \
           r"\s*(-f|--file)\s*'(?P<filepath>[\/\\].*?\.[\w:]+)'" \
           r"(\s*(-alg|--algorithm)\s*(?P<algorithm>[\w]+))?" \
-          r"(\s*(-n|--name)\s*(?P<name>[\w.]+))?\s*$"
+          r"(\s*(-n|--name)\s*(?P<name>[\w.]+))?\s*" \
+          r"(\s*(?P<overwrite>-ow|--overwrite))?\s*$"
 
     REMOVE = r"^\s*rm" \
              r"\s*(-f|--file)\s*(?P<name>[\w.]+)\s*$"
@@ -50,7 +52,8 @@ class EDCommandLine(object):
             filepath = options.group("filepath")
             alg = options.group("algorithm")
             name = options.group("name")
-            EDCommandHandler.handle_add_file_cmd(filepath, name, alg)
+            overwrite = not options.group("overwrite") is None
+            EDCommandHandler.handle_add_file_cmd(filepath, name, alg, overwrite)
         elif options := self.remove_cmd.match(command):
             filename = options.group("name")
             EDCommandHandler.handle_remove_cmd(filename)

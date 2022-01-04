@@ -15,7 +15,7 @@ class Settings(str, Enum):
 
 class File(object):
     """A model class representing a record in the files database"""
-    def __init__(self, id, name, crypt_alg, encrypt_key, decrypt_key):
+    def __init__(self, id, name, crypt_alg, size, decrypt_key):
         """File Constructor
 
         :param id: file id
@@ -27,7 +27,7 @@ class File(object):
         self.id = id
         self.name = name
         self.crypt_alg = crypt_alg
-        self.encrypt_key = encrypt_key
+        self.size = size
         self.decrypt_key = decrypt_key
 
     def __str__(self):
@@ -35,13 +35,13 @@ class File(object):
 
         :return: a string representing the object
         """
-        return f"({self.id}, '{self.name}', '{self.crypt_alg}', '{self.encrypt_key}', '{self.decrypt_key}')"
+        return f"({self.id}, '{self.name}', '{self.crypt_alg}', '{self.size}', '{self.decrypt_key}')"
 
     index = {
         "id": 0,
         "name": 1,
         "crypt_alg": 2,
-        "encrypt_key": 3,
+        "size": 3,
         "decrypt_key": 4
     }
 
@@ -61,7 +61,7 @@ def init_db():
                     id integer primary key, 
                     name text not null UNIQUE, 
                     crypt_alg text not null, 
-                    encrypt_key text, 
+                    size REAL, 
                     decrypt_key text)''')
             con.commit()
             con.close()
@@ -84,24 +84,28 @@ def get_all() -> list[File]:
                 id = file[File.index["id"]]
                 name = file[File.index["name"]]
                 crypt_alg = file[File.index["crypt_alg"]]
-                encrypt_key = file[File.index["encrypt_key"]]
+                size = file[File.index["size"]]
                 decrypt_key = file[File.index["decrypt_key"]]
-                mapped_file = File(id, name, crypt_alg, encrypt_key, decrypt_key)
+                mapped_file = File(id, name, crypt_alg, size, decrypt_key)
                 files.append(mapped_file)
         return files
     except Exception as e:
         log.error("Could not list files from database", e)
 
 
-def add(file_metadata: File, filepath: str) -> bool:
+def add(file_metadata: File, filepath: str, overwrite: bool) -> bool:
     """Add a given file in database.
 
     :param file_metadata: file metadata:  name, encryption algorithm, keys
     :param filepath: local file path
+    :param overwrite: overwrite
     :return: True if success, False otherwise
     """
     try:
         log.debug(f"Creating file {filepath} in db files directory: {Settings.default_db_files_directory.value}")
+
+        if overwrite:
+            remove(file_metadata.name)
 
         with open(filepath, "rb") as file:
             content = file.read()
@@ -111,15 +115,14 @@ def add(file_metadata: File, filepath: str) -> bool:
         else:
             keys = RSA.generate_keys()
 
-        file_metadata.encrypt_key = keys[0]
         file_metadata.decrypt_key = keys[1]
 
         with open(path.join(Settings.default_db_files_directory.value, file_metadata.name), "wb+") as encrypted_file:
             log.debug(f"Start encrypting file using {file_metadata.crypt_alg} algorithm.")
             if file_metadata.crypt_alg == Alg.AES_ECB.value:
-                encrypted_content = AES.ecb_encrypt(content.decode(), file_metadata.encrypt_key)
+                encrypted_content = AES.ecb_encrypt(content.decode(), keys[0])
             else:
-                encrypted_content = RSA.encrypt(content, file_metadata.encrypt_key)
+                encrypted_content = RSA.encrypt(content, keys[0])
             log.debug(f"Content Encrypted.")
             encrypted_file.write(encrypted_content)
             log.debug(f"Encrypted file created.")
@@ -127,10 +130,10 @@ def add(file_metadata: File, filepath: str) -> bool:
         with sqlite3.connect(Settings.db_location.value) as con:
             cur = con.cursor()
             log.debug(f"Add file in database: {file_metadata}")
-            sql_cmd = f"INSERT INTO files(name, crypt_alg, encrypt_key, decrypt_key) VALUES (" \
+            sql_cmd = f"INSERT INTO files(name, crypt_alg, size, decrypt_key) VALUES (" \
                       f"'{file_metadata.name}'," \
                       f"'{file_metadata.crypt_alg}'," \
-                      f"'{file_metadata.encrypt_key}'," \
+                      f"'{file_metadata.size}'," \
                       f"'{file_metadata.decrypt_key}') "
             log.debug(f"Executing sql command: '{sql_cmd}'")
             cur.execute(sql_cmd)
@@ -183,7 +186,7 @@ def read(name: str):
             file = File(file_metadata[File.index["id"]],
                         file_metadata[File.index["name"]],
                         file_metadata[File.index["crypt_alg"]],
-                        file_metadata[File.index["encrypt_key"]],
+                        file_metadata[File.index["size"]],
                         file_metadata[File.index["decrypt_key"]])
 
         log.debug(f"Getting decrypt key.")
